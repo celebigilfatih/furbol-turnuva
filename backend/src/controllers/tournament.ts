@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { Router } from 'express';
+import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Tournament from '../models/Tournament';
 import Team from '../models/Team';
@@ -39,27 +40,44 @@ interface PartialFixtureMatch {
 // Tüm turnuvaları getir
 export const getAllTournaments = async (req: Request, res: Response) => {
   try {
+    console.log('getAllTournaments called with query:', req.query);
+    
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
+    console.log('Pagination params:', { page, limit, skip });
+
+    // Basit sorgu - populate olmadan
     const tournaments = await Tournament.find()
-      .populate('groups.teams')
+      .select('-groups.teams') // teams alanını hariç tut
       .skip(skip)
       .limit(limit)
-      .sort({ startDate: -1 });
+      .sort({ startDate: -1 })
+      .lean(); // Performans için lean kullan
+
+    console.log('Found tournaments:', tournaments.length);
 
     const total = await Tournament.countDocuments();
+    console.log('Total tournaments:', total);
 
-    res.json({
+    const response = {
       data: tournaments,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit)
-    });
+    };
+
+    console.log('Sending response:', response);
+    res.json(response);
   } catch (error) {
-    res.status(500).json({ message: 'Turnuvalar getirilirken bir hata oluştu.' });
+    console.error('Error fetching tournaments:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    res.status(500).json({ 
+      message: 'Turnuvalar getirilirken bir hata oluştu.',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
@@ -190,7 +208,7 @@ export const updateTournamentStatus = async (req: Request, res: Response) => {
 // Turnuvaya takım ekle
 export const addTeam = async (req: Request, res: Response) => {
   try {
-    const { teamId, groupId } = req.body;
+    const { teamId, groupId }: { teamId: mongoose.Types.ObjectId | string, groupId: mongoose.Types.ObjectId | string } = req.body;
     const tournament = await Tournament.findById(req.params.id);
     if (!tournament) {
       return res.status(404).json({ message: 'Turnuva bulunamadı.' });
@@ -203,7 +221,7 @@ export const addTeam = async (req: Request, res: Response) => {
 
     // Takımın zaten bir grupta olup olmadığını kontrol et
     const isTeamAlreadyInTournament = tournament.groups.some(group => 
-      group.teams.includes(teamId)
+      group.teams.some(id => id.toString() === teamId.toString())
     );
 
     if (isTeamAlreadyInTournament) {
@@ -222,7 +240,7 @@ export const addTeam = async (req: Request, res: Response) => {
     }
 
     // Takımı gruba ekle
-    targetGroup.teams.push(teamId);
+    targetGroup.teams.push(new mongoose.Types.ObjectId(teamId.toString()));
     await tournament.save();
 
     const updatedTournament = await Tournament.findById(req.params.id).populate('groups.teams');
@@ -284,8 +302,8 @@ export const generateFixture = async (req: Request, res: Response) => {
       const teams = group.teams;
       for (let i = 0; i < teams.length; i++) {
         for (let j = i + 1; j < teams.length; j++) {
-          const homeTeam = (typeof teams[i] === 'string') ? new mongoose.Types.ObjectId(teams[i]) : ((teams[i] as any)._id);
-          const awayTeam = (typeof teams[j] === 'string') ? new mongoose.Types.ObjectId(teams[j]) : ((teams[j] as any)._id);
+          const homeTeam = (typeof teams[i] === 'string') ? new mongoose.Types.ObjectId(teams[i]) : teams[i];
+          const awayTeam = (typeof teams[j] === 'string') ? new mongoose.Types.ObjectId(teams[j]) : teams[j];
           allMatches.push({
             tournament: tournament._id,
             homeTeam: homeTeam,
@@ -736,8 +754,8 @@ export const generateKnockoutMatches = async (req: Request, res: Response) => {
 
     // Çeyrek final maçlarını planla
     for (let i = 0; i < quarterFinalMatches.length; i++) {
-      (quarterFinalMatches[i] as any).date = new Date(currentTime);
-      (quarterFinalMatches[i] as any).field = (i % tournament.numberOfFields) + 1;
+      (quarterFinalMatches[i] as PartialFixtureMatch).date = new Date(currentTime);
+      (quarterFinalMatches[i] as PartialFixtureMatch).field = (i % tournament.numberOfFields) + 1;
 
       // Sonraki maç için zamanı güncelle
       if ((i + 1) % tournament.numberOfFields === 0) {

@@ -16,7 +16,7 @@ export interface ITournament extends Document {
   groups: {
     _id: mongoose.Types.ObjectId;
     name: string;
-    teams: string[];
+    teams: mongoose.Types.ObjectId[];
   }[];
   status: 'pending' | 'group_stage' | 'knockout_stage' | 'quarter_final' | 'semi_final' | 'final' | 'completed';
   extraTimeEnabled: boolean;
