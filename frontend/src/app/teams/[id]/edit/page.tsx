@@ -16,9 +16,12 @@ import type { UpdateTeamData } from '@/lib/services/team';
 
 interface PlayerInput {
   id?: string;
+  _id?: string;
   name: string;
   number: number;
   position?: string;
+  team?: string;
+  tournament?: string;
 }
 
 export default function EditTeamPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,7 +40,10 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
   });
 
   // Form state'i
-  const [formData, setFormData] = useState<UpdateTeamData>({
+  const [formData, setFormData] = useState<{
+    name: string;
+    players: PlayerInput[];
+  }>({
     name: '',
     players: [],
   });
@@ -48,7 +54,7 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
       setFormData({
         name: team.name,
         players: team.players.map(player => ({
-          id: player.id,
+          _id: player._id,
           name: player.name,
           number: player.number,
           position: player.position,
@@ -80,7 +86,7 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Boş oyuncuları filtrele
-    const validPlayers = formData.players.filter(player => player.name.trim() !== '');
+    const validPlayers = formData.players?.filter(player => player.name.trim() !== '') || [];
     if (validPlayers.length < 2) {
       toast({
         title: 'Hata',
@@ -89,10 +95,18 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
       });
       return;
     }
-    updateMutation.mutate({
-      ...formData,
-      players: validPlayers,
-    });
+    
+    // UpdateTeamData formatına dönüştür
+    const updateData: UpdateTeamData = {
+      name: formData.name,
+      players: validPlayers.map(player => ({
+        name: player.name,
+        number: player.number,
+        position: player.position,
+      })),
+    };
+    
+    updateMutation.mutate(updateData);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +120,7 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
   const handlePlayerChange = (index: number, field: keyof PlayerInput, value: string | number) => {
     setFormData((prev) => ({
       ...prev,
-      players: prev.players.map((player, i) =>
+      players: (prev.players || []).map((player, i) =>
         i === index ? { ...player, [field]: value } : player
       ),
     }));
@@ -116,8 +130,8 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
     setFormData((prev) => ({
       ...prev,
       players: [
-        ...prev.players,
-        { name: '', number: prev.players.length + 1 },
+        ...(prev.players || []),
+        { name: '', number: (prev.players?.length || 0) + 1 },
       ],
     }));
   };
@@ -125,7 +139,7 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
   const removePlayer = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      players: prev.players.filter((_, i) => i !== index),
+      players: (prev.players || []).filter((_, i) => i !== index),
     }));
   };
 
@@ -178,8 +192,8 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
               <div>
                 <Label>Oyuncular</Label>
                 <div className="space-y-4 mt-2">
-                  {formData.players.map((player, index) => (
-                    <div key={player.id || index} className="grid gap-4 md:grid-cols-3 items-end">
+                  {(formData.players || []).map((player, index) => (
+                    <div key={index} className="grid gap-4 md:grid-cols-3 items-end">
                       <div className="space-y-2">
                         <Label htmlFor={`player-${index}-name`}>
                           {index + 1}. Oyuncu Adı
@@ -256,4 +270,4 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
       </Card>
     </div>
   );
-} 
+}

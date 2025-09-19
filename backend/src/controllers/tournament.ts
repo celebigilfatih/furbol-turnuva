@@ -23,6 +23,19 @@ interface FixtureMatch {
   penaltyShootoutEnabled: boolean;
 }
 
+interface PartialFixtureMatch {
+  tournament: mongoose.Types.ObjectId;
+  homeTeam: mongoose.Types.ObjectId;
+  awayTeam: mongoose.Types.ObjectId;
+  date?: Date;
+  field?: number;
+  stage: MatchStage;
+  group?: string;
+  status: MatchStatus;
+  extraTimeEnabled: boolean;
+  penaltyShootoutEnabled: boolean;
+}
+
 // Tüm turnuvaları getir
 export const getAllTournaments = async (req: Request, res: Response) => {
   try {
@@ -290,7 +303,7 @@ export const generateFixture = async (req: Request, res: Response) => {
     }
 
     // Calculate the interval for each match slot (match duration + break duration)
-    const slotInterval = tournament.matchDuration + tournament.breakDuration;
+    const slotInterval = (tournament.matchDuration || 90) + (tournament.breakDuration || 15);
     const numFields = tournament.numberOfFields;
 
     // Helper: Parse a time string ("HH:MM") into a Date for a given day
@@ -405,8 +418,8 @@ export const generateFixture = async (req: Request, res: Response) => {
             start: tournament.lunchBreakStart,
             duration: tournament.lunchBreakDuration
           },
-          matchDuration: tournament.matchDuration,
-          breakDuration: tournament.breakDuration,
+          matchDuration: tournament.matchDuration || 90,
+        breakDuration: tournament.breakDuration || 15,
           matchTimes: uniqueTimes
         }
       }
@@ -618,6 +631,7 @@ function findAvailableField(
 
     // Bu sahada olan maçları kontrol et
     for (const match of existingMatches.filter(m => m.field === field)) {
+      if (!match.date) continue; // date undefined ise bu maçı atla
       const existingMatchStart = new Date(match.date);
       // Mevcut maçın bitiş zamanını hesapla (maç süresi + mola süresi)
       const existingMatchEnd = new Date(existingMatchStart.getTime() + (matchDuration + breakDuration) * 60000);
@@ -722,13 +736,13 @@ export const generateKnockoutMatches = async (req: Request, res: Response) => {
 
     // Çeyrek final maçlarını planla
     for (let i = 0; i < quarterFinalMatches.length; i++) {
-      quarterFinalMatches[i].date = new Date(currentTime);
-      quarterFinalMatches[i].field = (i % tournament.numberOfFields) + 1;
+      (quarterFinalMatches[i] as any).date = new Date(currentTime);
+      (quarterFinalMatches[i] as any).field = (i % tournament.numberOfFields) + 1;
 
       // Sonraki maç için zamanı güncelle
       if ((i + 1) % tournament.numberOfFields === 0) {
         currentTime = new Date(currentTime.setMinutes(
-          currentTime.getMinutes() + tournament.matchDuration + tournament.breakDuration
+          currentTime.getMinutes() + (tournament.matchDuration || 90) + (tournament.breakDuration || 15)
         ));
       }
     }
@@ -870,7 +884,7 @@ export const generateSemiFinalAndFinal = async (req: Request, res: Response) => 
     }
 
     // Yarı final eşleşmelerini oluştur
-    const semiFinalMatches: FixtureMatch[] = [
+    const semiFinalMatches: PartialFixtureMatch[] = [
       {
         tournament: tournament._id,
         homeTeam: semiFinalTeams[0],
@@ -971,7 +985,7 @@ export const generateFinal = async (req: Request, res: Response) => {
     }
 
     // Final maçını oluştur
-    const finalMatch: FixtureMatch = {
+    const finalMatch: PartialFixtureMatch = {
       tournament: tournament._id,
       homeTeam: finalists[0],
       awayTeam: finalists[1],
@@ -1089,7 +1103,7 @@ export const generateQuarterFinals = async (req: Request, res: Response) => {
       }
     }
 
-    const quarterFinalMatches: FixtureMatch[] = [];
+    const quarterFinalMatches: PartialFixtureMatch[] = [];
     // A1 vs B2, B1 vs A2, C1 vs D2, D1 vs C2
     for (let i = 0; i < qualifiedTeams.length; i += 4) {
       quarterFinalMatches.push(
@@ -1140,7 +1154,7 @@ export const generateQuarterFinals = async (req: Request, res: Response) => {
       // Sonraki maç için zamanı güncelle
       if ((i + 1) % tournament.numberOfFields === 0) {
         currentTime = new Date(currentTime.setMinutes(
-          currentTime.getMinutes() + tournament.matchDuration + tournament.breakDuration
+          currentTime.getMinutes() + (tournament.matchDuration || 90) + (tournament.breakDuration || 15)
         ));
       }
     }
@@ -1160,4 +1174,4 @@ export const generateQuarterFinals = async (req: Request, res: Response) => {
     console.error('Çeyrek final maçları oluşturma hatası:', error);
     res.status(500).json({ message: 'Çeyrek final maçları oluşturulurken bir hata oluştu.' });
   }
-}; 
+};

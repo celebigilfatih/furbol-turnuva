@@ -10,7 +10,6 @@ import { useToast } from '@/components/ui/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, Users, Calendar, Clock, MapPin, Swords } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import type { AxiosError } from 'axios'
 
 export default function TournamentsPage() {
   const { toast } = useToast();
@@ -36,10 +35,10 @@ export default function TournamentsPage() {
       });
       queryClient.invalidateQueries({ queryKey: ['tournaments'] });
     },
-    onError: (error: AxiosError<{ message: string }>) => {
+    onError: (error: Error | { response?: { data?: { message?: string } } }) => {
       toast({
         title: 'Hata',
-        description: error.response?.data?.message || 'Turnuva silinirken bir hata oluştu.',
+        description: ('response' in error && error.response?.data?.message) || 'Turnuva silinirken bir hata oluştu.',
         variant: 'destructive',
       });
     },
@@ -185,4 +184,4 @@ export default function TournamentsPage() {
       </div>
     </div>
   );
-} 
+}

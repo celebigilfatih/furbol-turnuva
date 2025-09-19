@@ -90,10 +90,10 @@ export function DataTable<TData, TValue>({
     pageCount: Math.ceil(data.length / pageSize),
     manualPagination: false,
     filterFns: {
-      custom: (row, id, value) => {
-        const column = columns.find(col => (col.id || col.accessorKey) === id)
+      custom: (row, id, value, addMeta) => {
+        const column = columns.find(col => (col.id || ('accessorKey' in col && col.accessorKey)) === id)
         if (column && 'filterFn' in column) {
-          return (column.filterFn as FilterFn<TData>)(row, id, value)
+          return (column.filterFn as FilterFn<TData>)(row, id, value, addMeta)
         }
         return true
       }
@@ -219,4 +219,4 @@ export function DataTable<TData, TValue>({
       </div>
     </div>
   )
-} 
+}

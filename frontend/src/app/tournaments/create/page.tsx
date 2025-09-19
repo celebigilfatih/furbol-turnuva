@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { tournamentService } from '@/lib/services/tournament';
-import { Trophy, Calendar, Clock, ArrowLeft } from 'lucide-react';
+import { Trophy, Clock, ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -348,4 +348,4 @@ export default function CreateTournamentPage() {
       </form>
     </div>
   );
-} 
+}

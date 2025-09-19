@@ -35,7 +35,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     ports:
-      - "27017:27017"
+      - "27018:27017"
     restart: unless-stopped
     networks:
       - app-network

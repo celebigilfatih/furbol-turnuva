@@ -18,7 +18,7 @@ export interface ITournament extends Document {
     name: string;
     teams: string[];
   }[];
-  status: 'pending' | 'group_stage' | 'knockout_stage' | 'completed';
+  status: 'pending' | 'group_stage' | 'knockout_stage' | 'quarter_final' | 'semi_final' | 'final' | 'completed';
   extraTimeEnabled: boolean;
   penaltyShootoutEnabled: boolean;
 }
@@ -43,7 +43,7 @@ const TournamentSchema: Schema = new Schema({
   }],
   status: {
     type: String,
-    enum: ['pending', 'group_stage', 'knockout_stage', 'completed'],
+    enum: ['pending', 'group_stage', 'knockout_stage', 'quarter_final', 'semi_final', 'final', 'completed'],
     default: 'pending'
   },
   extraTimeEnabled: { type: Boolean, default: true },
@@ -52,4 +52,4 @@ const TournamentSchema: Schema = new Schema({
   timestamps: true
 });
 
-export default mongoose.model<ITournament>('Tournament', TournamentSchema); 
+export default mongoose.model<ITournament>('Tournament', TournamentSchema);

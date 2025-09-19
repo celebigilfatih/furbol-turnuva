@@ -21,7 +21,7 @@ export interface IMatch extends Document {
   homeTeam: mongoose.Types.ObjectId;
   awayTeam: mongoose.Types.ObjectId;
   date: Date;
-  field: string;
+  field: number;
   stage: 'group' | 'quarter_final' | 'semi_final' | 'final';
   group?: string;
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
@@ -50,7 +50,7 @@ const MatchSchema = new Schema<IMatch>({
   homeTeam: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
   awayTeam: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
   date: { type: Date, required: true },
-  field: { type: String, required: true },
+  field: { type: Number, required: true },
   stage: { 
     type: String, 
     enum: ['group', 'quarter_final', 'semi_final', 'final'],
@@ -70,4 +70,4 @@ const MatchSchema = new Schema<IMatch>({
   timestamps: true
 });
 
-export default mongoose.model<IMatch>('Match', MatchSchema); 
+export default mongoose.model<IMatch>('Match', MatchSchema);

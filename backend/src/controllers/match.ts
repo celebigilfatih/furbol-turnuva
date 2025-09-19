@@ -285,10 +285,10 @@ export const getStandings = async (req: Request, res: Response) => {
           return;
         }
 
-        standings.set(team._id.toString(), {
+        standings.set((team as any)._id?.toString() || team.toString(), {
           team: {
-            id: team._id.toString(),
-            name: team.name
+            id: (team as any)._id?.toString() || team.toString(),
+            name: (team as any).name || 'Unknown Team'
           },
           group: group.name,
           played: 0,
@@ -362,4 +362,4 @@ export const getStandings = async (req: Request, res: Response) => {
     console.error('Puan durumu hesaplama hatası:', error);
     res.status(500).json({ message: 'Puan durumu hesaplanırken bir hata oluştu.' });
   }
-}; 
+};

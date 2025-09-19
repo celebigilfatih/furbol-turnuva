@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge'
 import { Users, Trophy, Goal, ChevronRight, Shield, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
-import type { AxiosError } from 'axios'
 
 export default function TeamsPage() {
   const { toast } = useToast();
@@ -25,10 +24,10 @@ export default function TeamsPage() {
       });
       queryClient.invalidateQueries({ queryKey: ['teams'] });
     },
-    onError: (error: AxiosError<{ message: string }>) => {
+    onError: (error: Error | { response?: { data?: { message?: string } } }) => {
       toast({
         title: 'Hata',
-        description: error.response?.data?.message || 'Takım silinirken bir hata oluştu.',
+        description: ('response' in error && error.response?.data?.message) || 'Takım silinirken bir hata oluştu.',
         variant: 'destructive',
       });
     },
@@ -186,4 +185,4 @@ export default function TeamsPage() {
       )}
     </div>
   )
-} 
+}

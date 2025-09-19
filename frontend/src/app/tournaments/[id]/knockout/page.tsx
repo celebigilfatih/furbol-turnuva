@@ -37,9 +37,8 @@ export default function KnockoutStagePage({ params }: { params: Promise<{ id: st
   // Turnuva bilgilerini getir
   const { data: tournamentResponse } = useQuery({
     queryKey: ['tournament', resolvedParams.id],
-    queryFn: async () => {
-      return tournamentService.getById(resolvedParams.id);
-    },
+    queryFn: () => tournamentService.getById(resolvedParams.id),
+    enabled: !!resolvedParams.id,
   });
 
   // Puan durumunu getir
@@ -167,7 +166,7 @@ export default function KnockoutStagePage({ params }: { params: Promise<{ id: st
       for (const match of matches) {
         await createMatchMutation.mutateAsync(match);
       }
-    } catch (error) {
+    } catch {
       // Error is already handled by mutation
       return;
     }
@@ -494,4 +493,4 @@ export default function KnockoutStagePage({ params }: { params: Promise<{ id: st
       </form>
     </div>
   );
-} 
+}

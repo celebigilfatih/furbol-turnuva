@@ -72,7 +72,7 @@ export default function FixturesPage() {
       if (!isNaN(fieldNumber) && fieldNumber > 0) {
         updated[index] = { 
           ...updated[index], 
-          field: fieldNumber.toString() // Convert to string to match the type
+          field: fieldNumber // Keep as number since Match.field is now number
         };
         setHasChanges(true);
       }
@@ -341,4 +341,4 @@ export default function FixturesPage() {
       </div>
     </div>
   );
-} 
+}

@@ -1,6 +1,5 @@
-import type { Match, ApiResponse, UpdateMatchScoreResponse, UpdateMatchStatusResponse, PaginatedResponse, TeamStanding, ScoreInput } from '@/types/api';
+import type { Match, ApiResponse, UpdateMatchStatusResponse, PaginatedResponse, TeamStanding, ScoreInput } from '@/types/api';
 import { get, post, put, del, getPaginated } from './api';
-import { api } from '../api';
 
 export interface CreateMatchData extends Record<string, unknown> {
   tournament: string;
@@ -147,4 +146,4 @@ export const matchService = {
       throw error;
     }
   }
-}; 
+};

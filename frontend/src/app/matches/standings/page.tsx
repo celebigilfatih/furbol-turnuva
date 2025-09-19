@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from '@/lib/utils';
+import { Suspense } from 'react';
 
 interface TeamStanding {
   team: {
@@ -35,7 +36,7 @@ interface TeamStanding {
   points: number;
 }
 
-export default function StandingsPage() {
+function StandingsContent() {
   const searchParams = useSearchParams();
   const tournamentId = searchParams.get('tournamentId');
 
@@ -211,4 +212,12 @@ export default function StandingsPage() {
       )}
     </div>
   );
-} 
+}
+
+export default function StandingsPage() {
+  return (
+    <Suspense fallback={<div>Yükleniyor...</div>}>
+      <StandingsContent />
+    </Suspense>
+  );
+}

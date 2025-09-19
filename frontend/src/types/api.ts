@@ -41,15 +41,21 @@ export interface Team {
 }
 
 export interface Player {
-  id: string;
+  _id: string;
   name: string;
   number: number;
+  position?: string;
   team: Team;
   tournament: Tournament;
   goals: number;
   assists: number;
   matches: number;
   minutesPlayed: number;
+}
+
+export interface Scorer {
+  player: string;
+  minute: number;
 }
 
 export interface TeamStats {
@@ -69,7 +75,7 @@ export interface Match {
   homeTeam: Team;
   awayTeam: Team;
   date: string;
-  field: string;
+  field: number;
   stage: 'group' | 'quarter_final' | 'semi_final' | 'final';
   group?: string;
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
@@ -77,13 +83,15 @@ export interface Match {
     homeTeam: number;
     awayTeam: number;
     scorers: {
-      homeTeam: Array<{ player: string; minute: number }>;
-      awayTeam: Array<{ player: string; minute: number }>;
+      homeTeam: Scorer[];
+      awayTeam: Scorer[];
     };
   };
   extraTimeEnabled: boolean;
   penaltyShootoutEnabled: boolean;
-  winner?: Team | string;
+  winner?: Team;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface MatchScore {
@@ -176,4 +184,4 @@ export interface ScoreInput {
     homeTeam: Array<{ player: string; minute: number }>;
     awayTeam: Array<{ player: string; minute: number }>;
   };
-} 
+}

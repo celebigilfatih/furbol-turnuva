@@ -1,36 +1,22 @@
 'use client';
 
 import { use } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { ArrowLeft, Calendar, Clock, MapPin, Trophy, Users, UserPlus, Settings, Swords } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { tournamentService } from '@/lib/services/tournament';
 import { matchService } from '@/lib/services/match';
-import { Tournament, Match } from '@/types/api';
-import { useToast } from '@/components/ui/use-toast';
-import { 
-  Trophy,
-  Users,
-  Calendar,
-  Clock,
-  MapPin,
-  ArrowLeft,
-  Swords,
-  Settings,
-  UserPlus
-} from 'lucide-react';
-import { TopScorers } from '@/components/TopScorers';
+
 
 export default function TournamentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   // Turnuva verilerini getir
-  const { data: tournament, isLoading: isTournamentLoading } = useQuery<Tournament>({
+  const { data: tournament, isLoading: isTournamentLoading } = useQuery({
     queryKey: ['tournament', resolvedParams.id],
     queryFn: async () => {
       const response = await tournamentService.getById(resolvedParams.id);
@@ -38,33 +24,12 @@ export default function TournamentDetailsPage({ params }: { params: Promise<{ id
     },
   });
 
-  // Turnuva maçlarını getir
-  const { data: matches, isLoading: isMatchesLoading } = useQuery<Match[]>({
+  // Maçları getir
+  const { data: matches, isLoading: isMatchesLoading } = useQuery({
     queryKey: ['tournament-matches', resolvedParams.id],
     queryFn: async () => {
       const response = await matchService.getByTournament(resolvedParams.id);
       return response.data;
-    },
-  });
-
-  // Fikstür oluşturma mutation'ı
-  const generateFixtureMutation = useMutation({
-    mutationFn: async () => {
-      return tournamentService.generateFixture(resolvedParams.id);
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Başarılı',
-        description: 'Fikstür başarıyla oluşturuldu.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['tournament-matches', resolvedParams.id] });
-    },
-    onError: () => {
-      toast({
-        title: 'Hata',
-        description: 'Fikstür oluşturulurken bir hata oluştu.',
-        variant: 'destructive',
-      });
     },
   });
 
@@ -295,4 +260,4 @@ export default function TournamentDetailsPage({ params }: { params: Promise<{ id
       </Tabs>
     </div>
   );
-} 
+}

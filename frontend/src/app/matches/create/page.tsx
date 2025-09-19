@@ -23,7 +23,7 @@ interface MatchInput {
   date: string;
   time: string;
   field: number;
-  stage: 'group' | 'knockout';
+  stage: 'group' | 'quarter_final' | 'semi_final' | 'final';
   group?: string;
   extraTimeEnabled: boolean;
   penaltyShootoutEnabled: boolean;
@@ -320,4 +320,4 @@ export default function CreateMatchPage() {
       </form>
     </div>
   );
-} 
+}

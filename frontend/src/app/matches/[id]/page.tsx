@@ -21,15 +21,11 @@ import { matchService } from '@/lib/services/match';
 import { cn } from '@/lib/utils';
 
 interface MatchDetailPageProps {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }
 
-const useResolvedParams = (params: MatchDetailPageProps['params']) => {
-  return params instanceof Promise ? use(params) : params;
-};
-
 export default function MatchDetailPage({ params }: MatchDetailPageProps) {
-  const resolvedParams = useResolvedParams(params);
+  const resolvedParams = use(params);
   console.log('Resolved params:', resolvedParams);
 
   const { data: matchResponse, isLoading } = useQuery({
@@ -205,7 +201,7 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
                               {player ? (
                                 <>
                                   <span className="font-medium">{player.name}</span>
-                                  <span className="text-muted-foreground">({scorer.minute}')</span>
+                                  <span className="text-muted-foreground">({scorer.minute}&apos;)</span>
                                 </>
                               ) : (
                                 <span className="text-muted-foreground">Bilinmeyen oyuncu</span>
@@ -232,7 +228,7 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
                               {player ? (
                                 <>
                                   <span className="font-medium">{player.name}</span>
-                                  <span className="text-muted-foreground">({scorer.minute}')</span>
+                                  <span className="text-muted-foreground">({scorer.minute}&apos;)</span>
                                 </>
                               ) : (
                                 <span className="text-muted-foreground">Bilinmeyen oyuncu</span>
@@ -253,4 +249,4 @@ export default function MatchDetailPage({ params }: MatchDetailPageProps) {
       </div>
     </div>
   );
-} 
+}

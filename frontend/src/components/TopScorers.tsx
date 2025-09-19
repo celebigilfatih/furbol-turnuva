@@ -58,7 +58,7 @@ export function TopScorers({ tournamentId, limit }: TopScorersProps) {
           </TableHeader>
           <TableBody>
             {topScorers?.map((player, index) => (
-              <TableRow key={player.id}>
+              <TableRow key={player._id || index}>
                 <TableCell className="font-medium">{index + 1}</TableCell>
                 <TableCell>
                   <div>
@@ -77,4 +77,4 @@ export function TopScorers({ tournamentId, limit }: TopScorersProps) {
       </CardContent>
     </Card>
   );
-} 
+}

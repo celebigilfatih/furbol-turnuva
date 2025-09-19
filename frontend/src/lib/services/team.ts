@@ -6,6 +6,7 @@ export interface CreateTeamData extends Record<string, unknown> {
   players: {
     name: string;
     number: number;
+    position?: string;
   }[];
 }
 
@@ -65,4 +66,4 @@ export const teamService = {
   getStats: async (id: string): Promise<ApiResponse<Team['groupStats']>> => {
     return get<Team['groupStats']>(`${ENDPOINT}/${id}/stats`);
   }
-}; 
+};
