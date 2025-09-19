@@ -5,11 +5,11 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5004/api';
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5004';
     return [
       {
         source: '/api/:path*',
-        destination: `${backendUrl}/:path*`
+        destination: `${backendUrl}/api/:path*`
       }
     ]
   }

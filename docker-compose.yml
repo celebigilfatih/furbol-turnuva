@@ -3,9 +3,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - BACKEND_URL=http://backend:5004
     environment:
       - NODE_ENV=production
-      - BACKEND_URL=http://backend:5004/api
+      - BACKEND_URL=http://backend:5004
     ports:
       - "3004:3000"
     depends_on:

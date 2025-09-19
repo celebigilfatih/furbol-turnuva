@@ -21,6 +21,10 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # Enable standalone output
 ENV NEXT_STANDALONE true
 
+# Set build-time environment variable
+ARG BACKEND_URL
+ENV BACKEND_URL=${BACKEND_URL}
+
 RUN npm run build
 
 # Production image, copy all the files and run next
