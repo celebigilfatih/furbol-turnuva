@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { ApiResponse, PaginatedResponse } from '@/types/api';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5004/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://turnuva.webmahsul.com.tr/api',
   headers: {
     'Content-Type': 'application/json'
   }
